@@ -10,8 +10,9 @@
 </template>
 
 <script setup lang="ts">
+import { Database } from '../types/supabase'
 
-const supabase = useSupabaseClient()
+const supabase = useSupabaseClient<Database>()
 
 let { data: parties, error } = await supabase
     .from('party')
