@@ -4,6 +4,11 @@ Look at the [Nuxt 3 documentation](https://nuxt.com/docs/getting-started/introdu
 
 ## Setup
 
+
+Husk å legge til disse to i .env
+SUPABASE_URL=
+SUPABASE_KEY=
+
 Make sure to install the dependencies:
 
 ```bash

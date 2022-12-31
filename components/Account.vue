@@ -1,67 +1,36 @@
 <template>
-    <form class="form-widget" @submit.prevent="updateProfile">
+  <div>
+    <Suspense>
       <div>
-        <label for="email">Email</label>
-        <input id="email" type="text" :value="user.email" disabled />
+        <div v-if="user">
+          Hei {{ user.email }}
+          <span v-if="user.email_confirmed_at" class="px-2 bg-green-500 rounded-full text-white">Confirmed</span>
+        </div>
+        <button @click="signOut">Logg ut</button>
       </div>
-      <div>
-        <label for="username">Username</label>
-        <input id="username" type="text" v-model="username" />
-      </div>
-      <div>
-        <label for="website">Website</label>
-        <input id="website" type="website" v-model="website" />
-      </div>
+      <template #fallback>
+        <h1>Laster...</h1>
+      </template>
+    </Suspense>
+  </div>
+</template>
   
-      <div>
-        <input
-          type="submit"
-          class="button primary block"
-          :value="loading ? 'Loading ...' : 'Update'"
-          :disabled="loading"
-        />
-      </div>
-  
-      <div>
-        <button class="button block" @click="signOut" :disabled="loading">Sign Out</button>
-      </div>
-    </form>
-  </template>
-  
-  <script setup>
-    const supabase = useSupabaseClient()
-  
-    const loading = ref(true)
-    const username = ref('')
-    const website = ref('')
-    const avatar_path = ref('')
-  
-  
-    loading.value = true
-    const user = useSupabaseUser();
-    let { data } = await supabase
-        .from('profiles')
-        .select(`username, website, avatar_url`)
-        .eq('id', user.value.id)
-        .single()
-    if (data) {
-        username.value = data.username
-        website.value = data.website
-        avatar_path.value = data.avatar_url
-    }
-    loading.value = false
-  
-    async function signOut() {
-        try {
-            loading.value = true
-            let { error } = await supabase.auth.signOut()
-            if (error) throw error
-            user.value = null
-        } catch (error) {
-            alert(error.message)
-        } finally {
-            loading.value = false
-        }
-    }
-  </script>
+<script setup lang="ts">
+const supabase = useSupabaseClient();
+const { call } = useLoading();
+const user = useSupabaseUser();
+
+async function signOut() {
+  try {
+    call(async () => {
+      let { error } = await supabase.auth.signOut();
+      if (error) throw error;
+      user.value = null;
+    });
+  } catch (error) {
+    if (error instanceof Error) alert(error.message);
+    else alert(String(error));
+  }
+}
+</script>
   
